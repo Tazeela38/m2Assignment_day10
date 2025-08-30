@@ -1,0 +1,61 @@
+// Step 1: Import Express
+const express = require("express");
+const app = express();
+app.use(express.json()); // To handle JSON requests
+
+// Step 2: In-memory students array
+let students = [
+  { id: 1, name: "Alice", course: "Node.js" },
+  { id: 2, name: "Bob", course: "React" },
+];
+
+// Step 3: CRUD Routes
+
+// 1. READ all students
+app.get("/students", (req, res) => {
+  res.json(students);
+});
+
+// 2. READ student by ID
+app.get("/students/:id", (req, res) => {
+  const student = students.find((s) => s.id === parseInt(req.params.id));
+  student ? res.json(student) : res.status(404).json({ message: "Student not found" });
+});
+
+// 3. CREATE a new student
+app.post("/students", (req, res) => {
+  const newStudent = {
+    id: students.length ? students[students.length - 1].id + 1 : 1,
+    name: req.body.name,
+    course: req.body.course,
+  };
+  students.push(newStudent);
+  res.status(201).json(newStudent);
+});
+
+// 4. UPDATE a student by ID
+app.put("/students/:id", (req, res) => {
+  const student = students.find((s) => s.id === parseInt(req.params.id));
+  if (student) {
+    student.name = req.body.name || student.name;
+    student.course = req.body.course || student.course;
+    res.json(student);
+  } else {
+    res.status(404).json({ message: "Student not found" });
+  }
+});
+
+// 5. DELETE a student by ID
+app.delete("/students/:id", (req, res) => {
+  const index = students.findIndex((s) => s.id === parseInt(req.params.id));
+  if (index !== -1) {
+    const deletedStudent = students.splice(index, 1);
+    res.json(deletedStudent);
+  } else {
+    res.status(404).json({ message: "Student not found" });
+  }
+});
+
+// Step 4: Start server
+const PORT = 3000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
